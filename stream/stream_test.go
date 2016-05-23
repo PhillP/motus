@@ -43,7 +43,6 @@ func TestAccumulatorCycle_SingleValue(t *testing.T) {
     assert.Equal(t, value, statistics.maximum, "Maximum should equal the single value when only a single value was provided to the accumulator")
     assert.Equal(t, float64(0), statistics.sampleStandardDeviation, "Standard deviation should be 0 when only a single value was provided")
     assert.Equal(t, float64(0), statistics.coefficientOfVariation, "Coefficient of variation must be 0 when standard deviation is 0")
-    
     assert.Equal(t, statistics.mean, statistics.sampleMean, "Sample mean must equal mean when all values are included in the sample set")
     assert.Equal(t, statistics.sum, statistics.sampleSum, "Sample sum must equal sum when all values are included in the sample set")
     assert.Equal(t, statistics.count, int64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
