@@ -54,7 +54,7 @@ func (accumulator *Accumulator) Finalise() IntervalStatistics {
     for _,v := range accumulator.sampleValues {
         sumSquareError += math.Pow(v - sampleMean, 2)    
     }
-    sampleStandardDeviation = math.Sqrt(sumSquareError)
+    sampleStandardDeviation = math.Sqrt(sumSquareError / float64(accumulator.sampleCount))
     
     if sampleStandardDeviation > 0 {
         coefficientOfVariation = sampleMean / sampleStandardDeviation
@@ -96,7 +96,7 @@ func (accumulator *Accumulator) Include(value float64) {
         accumulator.sampleCount++
         
         // check if there are now too many samples
-        if float64(accumulator.sampleCount) > float64(accumulator.targetSampleCount) * .5 {
+        if float64(accumulator.sampleCount) > float64(accumulator.targetSampleCount) * 1.5 {
             // adjust the sampling rate
             accumulator.samplingRateDenominator *= 2
             
@@ -104,7 +104,7 @@ func (accumulator *Accumulator) Include(value float64) {
             
             // and remove half the samples
             for i,v := range accumulator.sampleValues {
-                if i % 2 == 0 {
+                if (i + 1) % 2 == 0 {
                     sampleSubset = append(sampleSubset, v)        
                 }
             }
