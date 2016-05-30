@@ -15,7 +15,6 @@ type Accumulator struct {
     finalised                   bool
 }
 
-
 // NewAccumulator creates an accumulator
 func NewAccumulator(targetSampleCount int) (*Accumulator) {
     accumulator := Accumulator{ 
