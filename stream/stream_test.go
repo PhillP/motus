@@ -14,7 +14,7 @@ func TestAccumulatorCycle_NoValue(t *testing.T) {
     // .. no values are provided to the accumulator ..
         
     // finalise the accumulator and gather statistics
-    var statistics = accumulator.Finalise()
+    var statistics = accumulator.Finalise(0, 1, ordinalInterval)
     
     assert.Equal(t, int64(0), statistics.count, "Count should be 0 when no values where provided to the accumulator")
     assert.Equal(t, statistics.count, int64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
@@ -32,7 +32,7 @@ func TestAccumulatorCycle_SingleValue(t *testing.T) {
     accumulator.Include(float64(value))
     
     // finalise the accumulator and gather statistics
-    var statistics = accumulator.Finalise()
+    var statistics = accumulator.Finalise(0, 1, ordinalInterval)
     
     assert.Equal(t, int64(1), statistics.count, "Count should be 1 when a single value was provided to the accumulator")
     assert.Equal(t, value, statistics.mean, "Mean should equal the single value when only a single value was provided to the accumulator")
@@ -60,7 +60,7 @@ func TestAccumulatorCycle_SomeValues(t *testing.T) {
     var expectedStandardDeviation = math.Sqrt(8.0/3.0)
     
     // finalise the accumulator and gather statistics
-    var statistics = accumulator.Finalise()
+    var statistics = accumulator.Finalise(0, 1, ordinalInterval)
 
     assert.Equal(t, int64(3), statistics.count, "Unexpected count")
     assert.Equal(t, float64(4), statistics.mean, "Unexpected mean")
@@ -106,7 +106,7 @@ func TestAccumulatorCycle_ManyValues(t *testing.T) {
     var overallMean = overallSum / float64(overallCount)
     
     // finalise the accumulator and gather statistics
-    var statistics = accumulator.Finalise()
+    var statistics = accumulator.Finalise(0, 1, ordinalInterval)
 
     assert.Equal(t, int64(overallCount), statistics.count, "Unexpected count")
     assert.Equal(t, overallMean, statistics.mean, "Unexpected mean")

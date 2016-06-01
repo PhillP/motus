@@ -27,7 +27,7 @@ func NewAccumulator(targetSampleCount int) (*Accumulator) {
 }
 
 // Finalise calculates statistics from the accumulator and prevents any further accumulation
-func (accumulator *Accumulator) Finalise() IntervalStatistics {
+func (accumulator *Accumulator) Finalise(intervalStart int64, intervalEnd int64, intervalType IntervalType) IntervalStatistics {
     
     // generate statistics based on the captured sample values
     
@@ -60,6 +60,9 @@ func (accumulator *Accumulator) Finalise() IntervalStatistics {
     }
     
     return IntervalStatistics{
+        intervalStart: intervalStart,
+        intervalEnd: intervalEnd,
+        intervalType: intervalType,
         minimum: accumulator.minimum,
         maximum: accumulator.maximum,
         count: accumulator.count,

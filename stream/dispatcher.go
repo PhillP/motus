@@ -47,20 +47,26 @@ func (dispatcher *Dispatcher) IncludeForTime(t time.Time, value float64) {
 
 // FinaliseIntervalsPriorToOrdinal causes all accumulators for intervals prior to
 // that related to the specified ordinal and removes them from the dispatcher
-func (dispatcher *Dispatcher) FinaliseIntervalsPriorToOrdinal(ordinal int64) {
+func (dispatcher *Dispatcher) FinaliseIntervalsPriorTo(ordinal int64, intervalType IntervalType, c chan IntervalStatistics) {
     var interval = int64(math.Floor(float64(ordinal) / float64(dispatcher.intervalSize)))
     
     for k,v := range dispatcher.accumulatorMap {
         if k < interval {
             // finalise and remove the accumulator
-            var _ = v.Finalise()
+            c <- v.Finalise(interval, interval + dispatcher.intervalSize, intervalType)    
             delete(dispatcher.accumulatorMap, k)
         }
     }
 }
 
+// FinaliseIntervalsPriorToOrdinal causes all accumulators for intervals prior to
+// that related to the specified ordinal and removes them from the dispatcher
+func (dispatcher *Dispatcher) FinaliseIntervalsPriorToOrdinal(ordinal int64, c chan IntervalStatistics) {
+    dispatcher.FinaliseIntervalsPriorTo(ordinal, ordinalInterval, c)
+}
+
 // FinaliseIntervalsPriorToTime causes all accumulators for intervals prior to
 // that related to the specified time, and removes them from the dispatcher
-func (dispatcher *Dispatcher) FinaliseIntervalsPriorToTime(t time.Time) {
-    dispatcher.FinaliseIntervalsPriorToOrdinal(t.UnixNano())
+func (dispatcher *Dispatcher) FinaliseIntervalsPriorToTime(t time.Time, c chan IntervalStatistics) {
+    dispatcher.FinaliseIntervalsPriorTo(t.UnixNano(), timeInterval, c)
 }
