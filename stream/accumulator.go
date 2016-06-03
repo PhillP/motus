@@ -4,6 +4,9 @@ import "math"
 
 // Accumulator used to calculate statistics for a period of time by processing provided values
 type Accumulator struct {
+    intervalStart               int64
+    intervalEnd                 int64
+    intervalType                IntervalType
     minimum                     float64
     maximum                     float64
     count                       int64
@@ -11,23 +14,35 @@ type Accumulator struct {
     sampleCount                 int
     targetSampleCount           int
     samplingRateDenominator     int
-    sampleValues                []float64
+    sampleValues                []OrdinalValue
     finalised                   bool
 }
 
 // NewAccumulator creates an accumulator
-func NewAccumulator(targetSampleCount int) (*Accumulator) {
+func NewAccumulator(intervalStart int64, intervalEnd int64, intervalType IntervalType, targetSampleCount int) (*Accumulator) {
     accumulator := Accumulator{ 
+        intervalStart: intervalStart,
+        intervalEnd: intervalEnd,
+        intervalType: intervalType,
         samplingRateDenominator: 1, 
         targetSampleCount: targetSampleCount,    
-        sampleValues: make([]float64, 0, 100),
+        sampleValues: make([]OrdinalValue, 0, 100),
         finalised: false}
         
     return &accumulator
 }
 
+// Accumulate values from a channel
+func (accumulator *Accumulator) Accumulate(input chan OrdinalValue, output chan IntervalStatistics) {
+    for v := range input {
+        accumulator.Include(v)
+    }
+    
+    output <- accumulator.Finalise()
+}
+
 // Finalise calculates statistics from the accumulator and prevents any further accumulation
-func (accumulator *Accumulator) Finalise(intervalStart int64, intervalEnd int64, intervalType IntervalType) IntervalStatistics {
+func (accumulator *Accumulator) Finalise() IntervalStatistics {
     
     // generate statistics based on the captured sample values
     
@@ -44,14 +59,14 @@ func (accumulator *Accumulator) Finalise(intervalStart int64, intervalEnd int64,
     if accumulator.sampleCount > 0 {
         // calculate sample mean
         for _,v := range accumulator.sampleValues {
-            sampleSum += v    
+            sampleSum += v.value    
         }
         sampleMean = sampleSum / float64(accumulator.sampleCount) 
     }
     
     var sumSquareError float64
     for _,v := range accumulator.sampleValues {
-        sumSquareError += math.Pow(v - sampleMean, 2)    
+        sumSquareError += math.Pow(v.value - sampleMean, 2)    
     }
     sampleStandardDeviation = math.Sqrt(sumSquareError / float64(accumulator.sampleCount))
     
@@ -60,9 +75,9 @@ func (accumulator *Accumulator) Finalise(intervalStart int64, intervalEnd int64,
     }
     
     return IntervalStatistics{
-        intervalStart: intervalStart,
-        intervalEnd: intervalEnd,
-        intervalType: intervalType,
+        intervalStart: accumulator.intervalStart,
+        intervalEnd: accumulator.intervalEnd,
+        intervalType: accumulator.intervalType,
         minimum: accumulator.minimum,
         maximum: accumulator.maximum,
         count: accumulator.count,
@@ -76,7 +91,9 @@ func (accumulator *Accumulator) Finalise(intervalStart int64, intervalEnd int64,
 }
 
 // Include a new value within the accumulation
-func (accumulator *Accumulator) Include(value float64) {
+func (accumulator *Accumulator) Include(ordinalValue OrdinalValue) {
+    
+    value:=ordinalValue.value
     
     if accumulator.finalised {
         panic("Accumulator cannot include any more values after finalisation")
@@ -94,7 +111,7 @@ func (accumulator *Accumulator) Include(value float64) {
     accumulator.sum += value
     
     if accumulator.count % int64(accumulator.samplingRateDenominator) == 0 {
-        accumulator.sampleValues = append(accumulator.sampleValues, value)
+        accumulator.sampleValues = append(accumulator.sampleValues, ordinalValue)
         accumulator.sampleCount++
         
         // check if there are now too many samples
@@ -102,7 +119,7 @@ func (accumulator *Accumulator) Include(value float64) {
             // adjust the sampling rate
             accumulator.samplingRateDenominator *= 2
             
-            var sampleSubset = make([]float64, 0)
+            var sampleSubset = make([]OrdinalValue, 0)
             
             // and remove half the samples
             for i,v := range accumulator.sampleValues {
