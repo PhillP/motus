@@ -33,12 +33,13 @@ func NewAccumulator(intervalStart int64, intervalEnd int64, intervalType Interva
 }
 
 // Accumulate values from a channel
-func (accumulator *Accumulator) Accumulate(input chan OrdinalValue, output chan IntervalStatistics) {
+func (accumulator *Accumulator) Accumulate(input chan OrdinalValue, output chan IntervalStatistics, done chan bool) {
     for v := range input {
         accumulator.Include(v)
     }
     
     output <- accumulator.Finalise()
+    done <- true
 }
 
 // Finalise calculates statistics from the accumulator and prevents any further accumulation

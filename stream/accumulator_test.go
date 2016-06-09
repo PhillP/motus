@@ -162,8 +162,9 @@ func TestAccumulatorCycle_ManyValuesWithChannels(t *testing.T) {
     
     input := make(chan OrdinalValue)
     output := make(chan IntervalStatistics)
+    doneChannel := make(chan bool)
     
-    go accumulator.Accumulate(input, output)
+    go accumulator.Accumulate(input, output, doneChannel)
     
     var overallSum = 0.0
     var overallCount = 0
@@ -191,6 +192,7 @@ func TestAccumulatorCycle_ManyValuesWithChannels(t *testing.T) {
     
     // finalise the accumulator and gather statistics
     statistics := <- output
+    <- doneChannel
 
     assert.Equal(t, int64(overallCount), statistics.count, "Unexpected count")
     assert.Equal(t, overallMean, statistics.mean, "Unexpected mean")

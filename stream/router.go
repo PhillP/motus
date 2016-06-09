@@ -3,16 +3,14 @@ package stream
 // Router sends data to an appropriate channel based on key 
 type Router struct {
     channelMap              map[string]chan OrdinalValue
-    unassignedChannel       chan OrdinalValue
 }
 
 // NewRouter creates a router for an input channel and begins reading immediately
-func NewRouter(input chan OrdinalValue, unassigned chan OrdinalValue) (*Router) {
+func NewRouter() (*Router) {
     var channelMap = make(map[string]chan OrdinalValue)
     
     router := Router {
-        channelMap: channelMap,
-        unassignedChannel: unassigned}
+        channelMap: channelMap}
     
     return &router
 }
@@ -30,6 +28,11 @@ func (router *Router) Route(input chan OrdinalValue, unassigned chan OrdinalValu
             unassigned <- v
         }
     }
+    
+    for _,v := range router.channelMap {
+        close(v)
+    }
+    
 }
 
 // Register the channel for a stream based on key
