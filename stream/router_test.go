@@ -29,7 +29,7 @@ func TestRouter(t *testing.T) {
         var randSource = rand.NewSource(int64(s))
         var r = rand.New(randSource)
         
-        var intervalRouter = NewIntervalRouter(streamName, 10000, ordinalInterval)
+        var intervalRouter = NewIntervalRouter(streamName, 10000, ordinalInterval, 3, 500)
         var streamInput = make(chan OrdinalValue)
         var irDoneChannel = make(chan bool)
         irDoneChannels = append(irDoneChannels, irDoneChannel)
@@ -70,10 +70,12 @@ func ProcessOutputStatistics(output chan IntervalStatistics, done chan bool) {
     logger, _ := log.LoggerFromConfigAsBytes([]byte(testConfig))
     log.ReplaceLogger(logger)
 
+    log.Info("-----------------------------Starting------------------------------")
+    
     for s := range output {
         log.Info(fmt.Sprintf("Interval: %d to %d, minimum: %f, maximum: %f, mean: %f, sd: %f", s.intervalStart, s.intervalEnd, s.minimum, s.maximum, s.mean, s.sampleStandardDeviation))
     }
     
-    log.Info("Done")
+    log.Info("------------------------------Done--------------------------------")
     done <- true
 }

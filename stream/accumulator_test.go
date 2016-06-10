@@ -6,7 +6,7 @@ import "math"
 
 // Test that the Accumulator produces correct results when no values are received within the interval
 func TestAccumulatorCycle_NoValue(t *testing.T) {
-    var targetSampleCount = 100 // the sample count is larger than the number of values provided within this test
+    var targetSampleCount = uint32(100) // the sample count is larger than the number of values provided within this test
     
     var accumulator = NewAccumulator(0, math.MaxInt64, ordinalInterval, targetSampleCount)
     
@@ -16,13 +16,13 @@ func TestAccumulatorCycle_NoValue(t *testing.T) {
     // finalise the accumulator and gather statistics
     var statistics = accumulator.Finalise()
     
-    assert.Equal(t, int64(0), statistics.count, "Count should be 0 when no values where provided to the accumulator")
-    assert.Equal(t, statistics.count, int64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
+    assert.Equal(t, uint64(0), statistics.count, "Count should be 0 when no values where provided to the accumulator")
+    assert.Equal(t, statistics.count, uint64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
 }
 
 // Test that the Accumulator produces correct results when only a single value is received within the interval
 func TestAccumulatorCycle_SingleValue(t *testing.T) {
-    var targetSampleCount = 100 // the sample count is larger than the number of values provided within this test
+    var targetSampleCount = uint32(100) // the sample count is larger than the number of values provided within this test
     
     var accumulator = NewAccumulator(0, math.MaxInt64, ordinalInterval, targetSampleCount)
     
@@ -34,7 +34,7 @@ func TestAccumulatorCycle_SingleValue(t *testing.T) {
     // finalise the accumulator and gather statistics
     var statistics = accumulator.Finalise()
     
-    assert.Equal(t, int64(1), statistics.count, "Count should be 1 when a single value was provided to the accumulator")
+    assert.Equal(t, uint64(1), statistics.count, "Count should be 1 when a single value was provided to the accumulator")
     assert.Equal(t, value, statistics.mean, "Mean should equal the single value when only a single value was provided to the accumulator")
     assert.Equal(t, value, statistics.minimum, "Minimum should equal the single value when only a single value was provided to the accumulator")
     assert.Equal(t, value, statistics.maximum, "Maximum should equal the single value when only a single value was provided to the accumulator")
@@ -43,12 +43,12 @@ func TestAccumulatorCycle_SingleValue(t *testing.T) {
     assert.Equal(t, float64(0), statistics.coefficientOfVariation, "Coefficient of variation must be 0 when standard deviation is 0")
     assert.Equal(t, statistics.mean, statistics.sampleMean, "Sample mean must equal mean when all values are included in the sample set")
     assert.Equal(t, statistics.sum, statistics.sampleSum, "Sample sum must equal sum when all values are included in the sample set")
-    assert.Equal(t, statistics.count, int64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
+    assert.Equal(t, statistics.count, uint64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
 }
 
 // Test that the Accumulator produces correct results when multiple values are received (and all included in the sample count) within the interval
 func TestAccumulatorCycle_SomeValues(t *testing.T) {
-    var targetSampleCount = 100 // the sample count is larger than the number of values provided within this test
+    var targetSampleCount = uint32(100) // the sample count is larger than the number of values provided within this test
     
     var accumulator = NewAccumulator(0, math.MaxInt64, ordinalInterval, targetSampleCount)
     
@@ -62,7 +62,7 @@ func TestAccumulatorCycle_SomeValues(t *testing.T) {
     // finalise the accumulator and gather statistics
     var statistics = accumulator.Finalise()
 
-    assert.Equal(t, int64(3), statistics.count, "Unexpected count")
+    assert.Equal(t, uint64(3), statistics.count, "Unexpected count")
     assert.Equal(t, float64(4), statistics.mean, "Unexpected mean")
     assert.Equal(t, float64(2), statistics.minimum, "Unexpected minimum")
     assert.Equal(t, float64(6), statistics.maximum, "Unexpected maximum")
@@ -73,12 +73,12 @@ func TestAccumulatorCycle_SomeValues(t *testing.T) {
     
     assert.Equal(t, statistics.mean, statistics.sampleMean, "Sample mean must equal mean when all values are included in the sample set")
     assert.Equal(t, statistics.sum, statistics.sampleSum, "Sample sum must equal sum when all values are included in the sample set")
-    assert.Equal(t, statistics.count, int64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
+    assert.Equal(t, statistics.count, uint64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
 }
 
 // Test that the Accumulator produces correct results when multiple values (where some are excluded from the sample count) are received within the interval
 func TestAccumulatorCycle_ManyValues(t *testing.T) {
-    var targetSampleCount = 100 // the sample count is larger than the number of values provided within this test
+    var targetSampleCount = uint32(100) // the sample count is larger than the number of values provided within this test
     
     var accumulator = NewAccumulator(0, math.MaxInt64, ordinalInterval, targetSampleCount)
     
@@ -95,7 +95,7 @@ func TestAccumulatorCycle_ManyValues(t *testing.T) {
             valuesToAdd = 5
         }
         
-        for i:=0;i<valuesToAdd;i++ {
+        for i:=uint32(0);i<valuesToAdd;i++ {
             accumulator.Include(NewOrdinalValue("test",1,v))
             overallSum += v
             overallCount++
@@ -108,7 +108,7 @@ func TestAccumulatorCycle_ManyValues(t *testing.T) {
     // finalise the accumulator and gather statistics
     var statistics = accumulator.Finalise()
 
-    assert.Equal(t, int64(overallCount), statistics.count, "Unexpected count")
+    assert.Equal(t, uint64(overallCount), statistics.count, "Unexpected count")
     assert.Equal(t, overallMean, statistics.mean, "Unexpected mean")
     assert.Equal(t, 2.0, statistics.minimum, "Unexpected minimum")
     assert.Equal(t, 10.0, statistics.maximum, "Unexpected maximum")
@@ -127,7 +127,7 @@ func TestAccumulatorCycle_ManyValues(t *testing.T) {
     }
     
     var sampleValues = make([]float64, 0, 100)
-    var sampleCount = 0
+    var sampleCount = uint32(0)
     var sampleSum = 0.0
     
     for k,v := range addedValues {
@@ -156,7 +156,7 @@ func TestAccumulatorCycle_ManyValues(t *testing.T) {
 
 // Test that the Accumulator produces correct results when multiple values (where some are excluded from the sample count) are received within the interval
 func TestAccumulatorCycle_ManyValuesWithChannels(t *testing.T) {
-    var targetSampleCount = 100 // the sample count is larger than the number of values provided within this test
+    var targetSampleCount = uint32(100) // the sample count is larger than the number of values provided within this test
     
     var accumulator = NewAccumulator(0, math.MaxInt64, ordinalInterval, targetSampleCount)
     
@@ -179,7 +179,7 @@ func TestAccumulatorCycle_ManyValuesWithChannels(t *testing.T) {
             valuesToAdd = 5
         }
         
-        for i:=0;i<valuesToAdd;i++ {
+        for i:=uint32(0);i<valuesToAdd;i++ {
             input <- NewOrdinalValue("test",1,v)
             overallSum += v
             overallCount++
@@ -194,7 +194,7 @@ func TestAccumulatorCycle_ManyValuesWithChannels(t *testing.T) {
     statistics := <- output
     <- doneChannel
 
-    assert.Equal(t, int64(overallCount), statistics.count, "Unexpected count")
+    assert.Equal(t, uint64(overallCount), statistics.count, "Unexpected count")
     assert.Equal(t, overallMean, statistics.mean, "Unexpected mean")
     assert.Equal(t, 2.0, statistics.minimum, "Unexpected minimum")
     assert.Equal(t, 10.0, statistics.maximum, "Unexpected maximum")
@@ -213,7 +213,7 @@ func TestAccumulatorCycle_ManyValuesWithChannels(t *testing.T) {
     }
     
     var sampleValues = make([]float64, 0, 100)
-    var sampleCount = 0
+    var sampleCount = uint32(0)
     var sampleSum = 0.0
     
     for k,v := range addedValues {

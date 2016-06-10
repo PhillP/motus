@@ -16,11 +16,11 @@ type IntervalStatistics struct {
     minimum                     float64
     maximum                     float64
     mean                        float64
-    count                       int64
+    count                       uint64
     sum                         float64
     sampleMean                  float64
     sampleSum                   float64
-    sampleCount                 int
+    sampleCount                 uint32
     sampleStandardDeviation     float64
     coefficientOfVariation      float64
 }

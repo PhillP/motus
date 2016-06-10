@@ -9,17 +9,17 @@ type Accumulator struct {
     intervalType                IntervalType
     minimum                     float64
     maximum                     float64
-    count                       int64
+    count                       uint64
     sum                         float64
-    sampleCount                 int
-    targetSampleCount           int
-    samplingRateDenominator     int
+    sampleCount                 uint32
+    targetSampleCount           uint32
+    samplingRateDenominator     uint32
     sampleValues                []OrdinalValue
     finalised                   bool
 }
 
 // NewAccumulator creates an accumulator
-func NewAccumulator(intervalStart int64, intervalEnd int64, intervalType IntervalType, targetSampleCount int) (*Accumulator) {
+func NewAccumulator(intervalStart int64, intervalEnd int64, intervalType IntervalType, targetSampleCount uint32) (*Accumulator) {
     accumulator := Accumulator{ 
         intervalStart: intervalStart,
         intervalEnd: intervalEnd,
@@ -111,7 +111,7 @@ func (accumulator *Accumulator) Include(ordinalValue OrdinalValue) {
     accumulator.count++
     accumulator.sum += value
     
-    if accumulator.count % int64(accumulator.samplingRateDenominator) == 0 {
+    if accumulator.count % uint64(accumulator.samplingRateDenominator) == 0 {
         accumulator.sampleValues = append(accumulator.sampleValues, ordinalValue)
         accumulator.sampleCount++
         
@@ -130,7 +130,7 @@ func (accumulator *Accumulator) Include(ordinalValue OrdinalValue) {
             }
             
             accumulator.sampleValues = sampleSubset
-            accumulator.sampleCount = len(accumulator.sampleValues)
+            accumulator.sampleCount = uint32(len(accumulator.sampleValues))
         }
     }
 }

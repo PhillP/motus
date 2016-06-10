@@ -1,20 +1,28 @@
 package stream
 
-import "time"
-import "math"
+import (
+ "time"
+ "math"
+)
 
 // IntervalRouter sends stream data to an accumulator based matching the ordinal value to an interval 
 type IntervalRouter struct {
     key                     string
     intervalSize            int64
     intervalType            IntervalType
+    maxIntervalLag          uint32
+    maxInterval             int64
     channelMap              map[int64]chan OrdinalValue
     doneMap                 map[int64]chan bool
-    targetSampleCount       int
+    targetSampleCount       uint32
 }
 
 // NewIntervalRouter creates a new router used to assign values to intervals
-func NewIntervalRouter(key string, intervalSize int64, intervalType IntervalType) (*IntervalRouter) {
+func NewIntervalRouter(key string, 
+                intervalSize int64, 
+                intervalType IntervalType,
+                maxIntervalLag uint32,
+                targetSampleCount uint32) (*IntervalRouter) {
     var channelMap = make(map[int64]chan OrdinalValue)
     var doneMap = make(map[int64]chan bool)
     
@@ -22,9 +30,11 @@ func NewIntervalRouter(key string, intervalSize int64, intervalType IntervalType
         key: key,
         intervalSize: intervalSize,
         intervalType: intervalType,
+        maxIntervalLag: maxIntervalLag,
+        maxInterval: math.MinInt64, // set to the minimum value rather than 0 as negative intervals are supported
         channelMap: channelMap,
         doneMap: doneMap,
-        targetSampleCount: 10000}
+        targetSampleCount: targetSampleCount}
     
     return &intervalRouter
 }
@@ -44,25 +54,41 @@ func (intervalRouter *IntervalRouter) AccumulateFromChannel(input chan OrdinalVa
 func (intervalRouter *IntervalRouter) Accumulate(ordinalValue OrdinalValue, output chan IntervalStatistics) {
     var interval = int64(math.Floor(float64(ordinalValue.ordinal) / float64(intervalRouter.intervalSize)))
     
-    // lookup the appropriate channel based on interval
-    channel := intervalRouter.channelMap[interval]
-    
-    var intervalStart = interval * intervalRouter.intervalSize
-    
-    if channel == nil {
-        accumulator := NewAccumulator(intervalStart, intervalStart + intervalRouter.intervalSize - 1, intervalRouter.intervalType, intervalRouter.targetSampleCount)
+    // only process ordinals within the lag range
+    if intervalRouter.maxInterval == math.MinInt64 || interval >= (intervalRouter.maxInterval - int64(intervalRouter.maxIntervalLag)) {
         
-        channel = make(chan OrdinalValue)
-        doneChannel := make(chan bool)
-    
-        intervalRouter.channelMap[interval] = channel
-        intervalRouter.doneMap[interval] = doneChannel
+        // lookup the appropriate channel based on interval
+        channel := intervalRouter.channelMap[interval]
         
-        // start accumulating
-        go accumulator.Accumulate(channel, output, doneChannel)
+        var intervalStart = interval * int64(intervalRouter.intervalSize)
+        
+        if channel == nil {
+            accumulator := NewAccumulator(intervalStart, intervalStart + intervalRouter.intervalSize - 1, intervalRouter.intervalType, intervalRouter.targetSampleCount)
+            
+            channel = make(chan OrdinalValue)
+            doneChannel := make(chan bool)
+        
+            intervalRouter.channelMap[interval] = channel
+            intervalRouter.doneMap[interval] = doneChannel
+            
+            // start accumulating
+            go accumulator.Accumulate(channel, output, doneChannel)
+        }
+        
+        channel <- ordinalValue
+        
+        if intervalRouter.maxInterval == math.MinInt64 {
+            intervalRouter.maxInterval = interval
+        } else if interval > intervalRouter.maxInterval {
+            // max interval increased
+            intervalRouter.maxInterval = interval
+            
+            var maxIntervalToKeep = intervalRouter.maxInterval - int64(intervalRouter.maxIntervalLag)
+            var maxOrdinalToKeep = maxIntervalToKeep * intervalRouter.intervalSize
+            
+            intervalRouter.FinalisePriorTo(maxOrdinalToKeep)
+        }
     }
-    
-    channel <- ordinalValue
 }
 
 // FinalisePriorTo causes all accumulators for intervals prior to
@@ -70,23 +96,23 @@ func (intervalRouter *IntervalRouter) Accumulate(ordinalValue OrdinalValue, outp
 func (intervalRouter *IntervalRouter) FinalisePriorTo(ordinal int64) {
     var interval = int64(math.Floor(float64(ordinal) / float64(intervalRouter.intervalSize)))
     
-    for k,v := range intervalRouter.channelMap {
+    for k,c := range intervalRouter.channelMap {
         if k < interval {
             // close the channel
-            close(v)
+            close(c)
             
             // remove the accumulator
             delete(intervalRouter.channelMap, k)
         }
     }
     
-    for k,v := range intervalRouter.doneMap {
+    for k,c := range intervalRouter.doneMap {
         if k < interval {
             // wait for completion
-            <- v
+            <- c
             
             // close the channel
-            close(v)
+            close(c)
             
             // remove the channel from the map
             delete(intervalRouter.doneMap, k)
