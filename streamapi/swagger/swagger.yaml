@@ -1,0 +1,40 @@
+basePath: api
+consumes:
+- application/json
+host: localhost:8080
+info:
+  description: An API for stream statistics
+  title: Stream Statistics
+  version: ""
+paths:
+  /api/add/{stream}/{ordinal}/{value}:
+    get:
+      description: add a value to a stream referencing an ordinal position
+      operationId: OrdinalValues#add
+      parameters:
+      - description: The ordinal position of the value
+        in: path
+        name: ordinal
+        required: true
+        type: integer
+      - description: The stream for which the value is to be added
+        in: path
+        name: stream
+        required: true
+        type: string
+      - description: The value to be added to the stream
+        in: path
+        name: value
+        required: true
+        type: number
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+      summary: add
+produces:
+- application/json
+schemes:
+- http
+swagger: "2.0"
