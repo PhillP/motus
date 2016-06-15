@@ -29,7 +29,7 @@ func TestRouter(t *testing.T) {
         var randSource = rand.NewSource(int64(s))
         var r = rand.New(randSource)
         
-        var intervalRouter = NewIntervalRouter(streamName, 10000, ordinalInterval, 3, 500)
+        var intervalRouter = NewIntervalRouter(streamName, 10000, OrdinalInterval, 3, 500)
         var streamInput = make(chan OrdinalValue)
         var irDoneChannel = make(chan bool)
         irDoneChannels = append(irDoneChannels, irDoneChannel)

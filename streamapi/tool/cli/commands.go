@@ -1,6 +1,7 @@
 package cli
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/goadesign/goa"
 	goaclient "github.com/goadesign/goa/client"
@@ -22,6 +23,18 @@ type (
 		Value       float64
 		PrettyPrint bool
 	}
+
+	// PushOrdinalValuesCommand is the command line data structure for the push action of OrdinalValues
+	PushOrdinalValuesCommand struct {
+		Payload     string
+		PrettyPrint bool
+	}
+
+	// RegisterOrdinalValuesCommand is the command line data structure for the register action of OrdinalValues
+	RegisterOrdinalValuesCommand struct {
+		Payload     string
+		PrettyPrint bool
+	}
 )
 
 // RegisterCommands registers the resource action CLI commands.
@@ -39,6 +52,34 @@ func RegisterCommands(app *cobra.Command, c *client.Client) {
 	}
 	tmp1.RegisterFlags(sub, c)
 	sub.PersistentFlags().BoolVar(&tmp1.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "push",
+		Short: `Pushes a new ordinal value onto the stream`,
+	}
+	tmp2 := new(PushOrdinalValuesCommand)
+	sub = &cobra.Command{
+		Use:   `OrdinalValues [/api/push]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp2.Run(c, args) },
+	}
+	tmp2.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp2.PrettyPrint, "pp", false, "Pretty print response body")
+	command.AddCommand(sub)
+	app.AddCommand(command)
+	command = &cobra.Command{
+		Use:   "register",
+		Short: `Registers a new stream`,
+	}
+	tmp3 := new(RegisterOrdinalValuesCommand)
+	sub = &cobra.Command{
+		Use:   `OrdinalValues [/api/register]`,
+		Short: ``,
+		RunE:  func(cmd *cobra.Command, args []string) error { return tmp3.Run(c, args) },
+	}
+	tmp3.RegisterFlags(sub, c)
+	sub.PersistentFlags().BoolVar(&tmp3.PrettyPrint, "pp", false, "Pretty print response body")
 	command.AddCommand(sub)
 	app.AddCommand(command)
 }
@@ -71,4 +112,68 @@ func (cmd *AddOrdinalValuesCommand) RegisterFlags(cc *cobra.Command, c *client.C
 	cc.Flags().StringVar(&cmd.Stream, "stream", stream, `The stream for which the value is to be added`)
 	var value float64
 	cc.Flags().Float64Var(&cmd.Value, "value", value, `The value to be added to the stream`)
+}
+
+// Run makes the HTTP request corresponding to the PushOrdinalValuesCommand command.
+func (cmd *PushOrdinalValuesCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/api/push"
+	}
+	var payload client.PushOrdinalValuesPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.PushOrdinalValues(ctx, path, &payload)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *PushOrdinalValuesCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request JSON body")
+}
+
+// Run makes the HTTP request corresponding to the RegisterOrdinalValuesCommand command.
+func (cmd *RegisterOrdinalValuesCommand) Run(c *client.Client, args []string) error {
+	var path string
+	if len(args) > 0 {
+		path = args[0]
+	} else {
+		path = "/api/register"
+	}
+	var payload client.RegisterOrdinalValuesPayload
+	if cmd.Payload != "" {
+		err := json.Unmarshal([]byte(cmd.Payload), &payload)
+		if err != nil {
+			return fmt.Errorf("failed to deserialize payload: %s", err)
+		}
+	}
+	logger := goa.NewLogger(log.New(os.Stderr, "", log.LstdFlags))
+	ctx := goa.WithLogger(context.Background(), logger)
+	resp, err := c.RegisterOrdinalValues(ctx, path, &payload)
+	if err != nil {
+		goa.LogError(ctx, "failed", "err", err)
+		return err
+	}
+
+	goaclient.HandleResponse(c.Client, resp, cmd.PrettyPrint)
+	return nil
+}
+
+// RegisterFlags registers the command flags with the command line.
+func (cmd *RegisterOrdinalValuesCommand) RegisterFlags(cc *cobra.Command, c *client.Client) {
+	cc.Flags().StringVar(&cmd.Payload, "payload", "", "Request JSON body")
 }

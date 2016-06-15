@@ -1,6 +1,50 @@
 basePath: api
 consumes:
 - application/json
+definitions:
+  PushOrdinalValuesPayload:
+    properties:
+      ordinal:
+        description: The ordinal position within the stream
+        format: int64
+        type: integer
+      stream:
+        description: Identifies the stream that the ordinal value relates to
+        type: string
+      value:
+        description: The value at the ordinal position
+        format: double
+        type: number
+    required:
+    - stream
+    - ordinal
+    - value
+    title: PushOrdinalValuesPayload
+    type: object
+  RegisterOrdinalValuesPayload:
+    properties:
+      intervalSize:
+        description: The ordinal position within the stream
+        format: int64
+        type: integer
+      maxIntervalLag:
+        description: The value at the ordinal position
+        format: int64
+        type: integer
+      stream:
+        description: Identifies the stream that the definition relates to
+        type: string
+      targetSampleSize:
+        description: The value at the ordinal position
+        format: int64
+        type: integer
+    required:
+    - stream
+    - intervalSize
+    - maxIntervalLag
+    - targetSampleSize
+    title: RegisterOrdinalValuesPayload
+    type: object
 host: localhost:8080
 info:
   description: An API for stream statistics
@@ -33,6 +77,38 @@ paths:
       schemes:
       - http
       summary: add
+  /api/push:
+    post:
+      description: Pushes a new ordinal value onto the stream
+      operationId: OrdinalValues#push
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/PushOrdinalValuesPayload'
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+      summary: push
+  /api/register:
+    post:
+      description: Registers a new stream
+      operationId: OrdinalValues#register
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/RegisterOrdinalValuesPayload'
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+      summary: register
 produces:
 - application/json
 schemes:

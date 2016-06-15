@@ -4,8 +4,10 @@ package stream
 type IntervalType int
 
 const (
-    ordinalInterval IntervalType = iota
-    timeInterval
+    //OrdinalInterval indicates that intervals are determined based on ordinal position
+    OrdinalInterval IntervalType = iota
+    //TimeInterval indicates that intervals are determined based on time
+    TimeInterval
 )
 
 // IntervalStatistics is a set of statistics generated based on processed events within a period of time or over a range or ordinal positions 
