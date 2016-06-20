@@ -52,7 +52,7 @@ func (intervalRouter *IntervalRouter) AccumulateFromChannel(input chan OrdinalVa
 
 // Accumulate directs a value to the appropriate accumulator for an ordinal value
 func (intervalRouter *IntervalRouter) Accumulate(ordinalValue OrdinalValue, output chan IntervalStatistics) {
-    var interval = int64(math.Floor(float64(ordinalValue.ordinal) / float64(intervalRouter.intervalSize)))
+    var interval = int64(math.Floor(float64(ordinalValue.Ordinal) / float64(intervalRouter.intervalSize)))
     
     // only process ordinals within the lag range
     if intervalRouter.maxInterval == math.MinInt64 || interval >= (intervalRouter.maxInterval - int64(intervalRouter.maxIntervalLag)) {

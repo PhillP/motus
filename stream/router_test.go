@@ -73,7 +73,7 @@ func ProcessOutputStatistics(output chan IntervalStatistics, done chan bool) {
     log.Info("-----------------------------Starting------------------------------")
     
     for s := range output {
-        log.Info(fmt.Sprintf("Interval: %d to %d, minimum: %f, maximum: %f, mean: %f, sd: %f", s.intervalStart, s.intervalEnd, s.minimum, s.maximum, s.mean, s.sampleStandardDeviation))
+        log.Info(fmt.Sprintf("Interval: %d to %d, minimum: %f, maximum: %f, mean: %f, sd: %f", s.IntervalStart, s.IntervalEnd, s.Minimum, s.Maximum, s.Mean, s.SampleStandardDeviation))
     }
     
     log.Info("------------------------------Done--------------------------------")

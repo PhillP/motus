@@ -19,7 +19,7 @@ func NewRouter() (*Router) {
 func (router *Router) Route(input chan OrdinalValue, unassigned chan OrdinalValue) {
     for v := range input {
         // lookup the appropriate channel based on key
-        channel := router.channelMap[v.streamKey]
+        channel := router.channelMap[v.StreamKey]
     
         if channel != nil {
             channel <- v

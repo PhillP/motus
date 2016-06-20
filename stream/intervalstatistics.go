@@ -12,17 +12,17 @@ const (
 
 // IntervalStatistics is a set of statistics generated based on processed events within a period of time or over a range or ordinal positions 
 type IntervalStatistics struct {
-    intervalStart               int64
-    intervalEnd                 int64
-    intervalType                IntervalType
-    minimum                     float64
-    maximum                     float64
-    mean                        float64
-    count                       uint64
-    sum                         float64
-    sampleMean                  float64
-    sampleSum                   float64
-    sampleCount                 uint32
-    sampleStandardDeviation     float64
-    coefficientOfVariation      float64
+    IntervalStart               int64
+    IntervalEnd                 int64
+    IntervalType                IntervalType
+    Minimum                     float64
+    Maximum                     float64
+    Mean                        float64
+    Count                       uint64
+    Sum                         float64
+    SampleMean                  float64
+    SampleSum                   float64
+    SampleCount                 uint32
+    SampleStandardDeviation     float64
+    CoefficientOfVariation      float64
 }

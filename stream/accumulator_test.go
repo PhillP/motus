@@ -16,8 +16,8 @@ func TestAccumulatorCycle_NoValue(t *testing.T) {
     // finalise the accumulator and gather statistics
     var statistics = accumulator.Finalise()
     
-    assert.Equal(t, uint64(0), statistics.count, "Count should be 0 when no values where provided to the accumulator")
-    assert.Equal(t, statistics.count, uint64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
+    assert.Equal(t, uint64(0), statistics.Count, "Count should be 0 when no values where provided to the accumulator")
+    assert.Equal(t, statistics.Count, uint64(statistics.SampleCount), "Sample count must count when all values are included in the sample set")
 }
 
 // Test that the Accumulator produces correct results when only a single value is received within the interval
@@ -34,16 +34,16 @@ func TestAccumulatorCycle_SingleValue(t *testing.T) {
     // finalise the accumulator and gather statistics
     var statistics = accumulator.Finalise()
     
-    assert.Equal(t, uint64(1), statistics.count, "Count should be 1 when a single value was provided to the accumulator")
-    assert.Equal(t, value, statistics.mean, "Mean should equal the single value when only a single value was provided to the accumulator")
-    assert.Equal(t, value, statistics.minimum, "Minimum should equal the single value when only a single value was provided to the accumulator")
-    assert.Equal(t, value, statistics.maximum, "Maximum should equal the single value when only a single value was provided to the accumulator")
-    assert.Equal(t, value, statistics.sum, "Sum should equal the single value when only a single value was provided to the accumulator")
-    assert.Equal(t, float64(0), statistics.sampleStandardDeviation, "Standard deviation should be 0 when only a single value was provided")
-    assert.Equal(t, float64(0), statistics.coefficientOfVariation, "Coefficient of variation must be 0 when standard deviation is 0")
-    assert.Equal(t, statistics.mean, statistics.sampleMean, "Sample mean must equal mean when all values are included in the sample set")
-    assert.Equal(t, statistics.sum, statistics.sampleSum, "Sample sum must equal sum when all values are included in the sample set")
-    assert.Equal(t, statistics.count, uint64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
+    assert.Equal(t, uint64(1), statistics.Count, "Count should be 1 when a single value was provided to the accumulator")
+    assert.Equal(t, value, statistics.Mean, "Mean should equal the single value when only a single value was provided to the accumulator")
+    assert.Equal(t, value, statistics.Minimum, "Minimum should equal the single value when only a single value was provided to the accumulator")
+    assert.Equal(t, value, statistics.Maximum, "Maximum should equal the single value when only a single value was provided to the accumulator")
+    assert.Equal(t, value, statistics.Sum, "Sum should equal the single value when only a single value was provided to the accumulator")
+    assert.Equal(t, float64(0), statistics.SampleStandardDeviation, "Standard deviation should be 0 when only a single value was provided")
+    assert.Equal(t, float64(0), statistics.CoefficientOfVariation, "Coefficient of variation must be 0 when standard deviation is 0")
+    assert.Equal(t, statistics.Mean, statistics.SampleMean, "Sample mean must equal mean when all values are included in the sample set")
+    assert.Equal(t, statistics.Sum, statistics.SampleSum, "Sample sum must equal sum when all values are included in the sample set")
+    assert.Equal(t, statistics.Count, uint64(statistics.SampleCount), "Sample count must count when all values are included in the sample set")
 }
 
 // Test that the Accumulator produces correct results when multiple values are received (and all included in the sample count) within the interval
@@ -62,18 +62,18 @@ func TestAccumulatorCycle_SomeValues(t *testing.T) {
     // finalise the accumulator and gather statistics
     var statistics = accumulator.Finalise()
 
-    assert.Equal(t, uint64(3), statistics.count, "Unexpected count")
-    assert.Equal(t, float64(4), statistics.mean, "Unexpected mean")
-    assert.Equal(t, float64(2), statistics.minimum, "Unexpected minimum")
-    assert.Equal(t, float64(6), statistics.maximum, "Unexpected maximum")
-    assert.Equal(t, float64(12), statistics.sum, "Unexpected sum")
+    assert.Equal(t, uint64(3), statistics.Count, "Unexpected count")
+    assert.Equal(t, float64(4), statistics.Mean, "Unexpected mean")
+    assert.Equal(t, float64(2), statistics.Minimum, "Unexpected minimum")
+    assert.Equal(t, float64(6), statistics.Maximum, "Unexpected maximum")
+    assert.Equal(t, float64(12), statistics.Sum, "Unexpected sum")
     
-    assert.Equal(t, expectedStandardDeviation, statistics.sampleStandardDeviation, "Unexpected standard deviation")
-    assert.Equal(t, statistics.mean / expectedStandardDeviation, statistics.coefficientOfVariation, "Unexpected coefficient of variation")
+    assert.Equal(t, expectedStandardDeviation, statistics.SampleStandardDeviation, "Unexpected standard deviation")
+    assert.Equal(t, statistics.Mean / expectedStandardDeviation, statistics.CoefficientOfVariation, "Unexpected coefficient of variation")
     
-    assert.Equal(t, statistics.mean, statistics.sampleMean, "Sample mean must equal mean when all values are included in the sample set")
-    assert.Equal(t, statistics.sum, statistics.sampleSum, "Sample sum must equal sum when all values are included in the sample set")
-    assert.Equal(t, statistics.count, uint64(statistics.sampleCount), "Sample count must count when all values are included in the sample set")
+    assert.Equal(t, statistics.Mean, statistics.SampleMean, "Sample mean must equal mean when all values are included in the sample set")
+    assert.Equal(t, statistics.Sum, statistics.SampleSum, "Sample sum must equal sum when all values are included in the sample set")
+    assert.Equal(t, statistics.Count, uint64(statistics.SampleCount), "Sample count must count when all values are included in the sample set")
 }
 
 // Test that the Accumulator produces correct results when multiple values (where some are excluded from the sample count) are received within the interval
@@ -108,11 +108,11 @@ func TestAccumulatorCycle_ManyValues(t *testing.T) {
     // finalise the accumulator and gather statistics
     var statistics = accumulator.Finalise()
 
-    assert.Equal(t, uint64(overallCount), statistics.count, "Unexpected count")
-    assert.Equal(t, overallMean, statistics.mean, "Unexpected mean")
-    assert.Equal(t, 2.0, statistics.minimum, "Unexpected minimum")
-    assert.Equal(t, 10.0, statistics.maximum, "Unexpected maximum")
-    assert.Equal(t, overallSum, statistics.sum, "Unexpected sum")
+    assert.Equal(t, uint64(overallCount), statistics.Count, "Unexpected count")
+    assert.Equal(t, overallMean, statistics.Mean, "Unexpected mean")
+    assert.Equal(t, 2.0, statistics.Minimum, "Unexpected minimum")
+    assert.Equal(t, 10.0, statistics.Maximum, "Unexpected maximum")
+    assert.Equal(t, overallSum, statistics.Sum, "Unexpected sum")
     
     // determine the sample set that would have been used
     var samplingRateDenominator = 1
@@ -147,11 +147,11 @@ func TestAccumulatorCycle_ManyValues(t *testing.T) {
     
     var sampleStandardDeviation = math.Sqrt(sumSqSampleErr / float64(sampleCount))
     
-    assert.Equal(t, sampleStandardDeviation, statistics.sampleStandardDeviation, "Unexpected standard deviation")
-    assert.Equal(t, sampleMean / sampleStandardDeviation, statistics.coefficientOfVariation, "Unexpected coefficient of variation")
-    assert.Equal(t, sampleMean, statistics.sampleMean, "Sample mean must equal mean when all values are included in the sample set")
-    assert.Equal(t, sampleSum, statistics.sampleSum, "Sample sum must equal sum when all values are included in the sample set")
-    assert.Equal(t, sampleCount, statistics.sampleCount, "Sample count must count when all values are included in the sample set")
+    assert.Equal(t, sampleStandardDeviation, statistics.SampleStandardDeviation, "Unexpected standard deviation")
+    assert.Equal(t, sampleMean / sampleStandardDeviation, statistics.CoefficientOfVariation, "Unexpected coefficient of variation")
+    assert.Equal(t, sampleMean, statistics.SampleMean, "Sample mean must equal mean when all values are included in the sample set")
+    assert.Equal(t, sampleSum, statistics.SampleSum, "Sample sum must equal sum when all values are included in the sample set")
+    assert.Equal(t, sampleCount, statistics.SampleCount, "Sample count must count when all values are included in the sample set")
 }
 
 // Test that the Accumulator produces correct results when multiple values (where some are excluded from the sample count) are received within the interval
@@ -194,11 +194,11 @@ func TestAccumulatorCycle_ManyValuesWithChannels(t *testing.T) {
     statistics := <- output
     <- doneChannel
 
-    assert.Equal(t, uint64(overallCount), statistics.count, "Unexpected count")
-    assert.Equal(t, overallMean, statistics.mean, "Unexpected mean")
-    assert.Equal(t, 2.0, statistics.minimum, "Unexpected minimum")
-    assert.Equal(t, 10.0, statistics.maximum, "Unexpected maximum")
-    assert.Equal(t, overallSum, statistics.sum, "Unexpected sum")
+    assert.Equal(t, uint64(overallCount), statistics.Count, "Unexpected count")
+    assert.Equal(t, overallMean, statistics.Mean, "Unexpected mean")
+    assert.Equal(t, 2.0, statistics.Minimum, "Unexpected minimum")
+    assert.Equal(t, 10.0, statistics.Maximum, "Unexpected maximum")
+    assert.Equal(t, overallSum, statistics.Sum, "Unexpected sum")
     
     // determine the sample set that would have been used
     var samplingRateDenominator = 1
@@ -233,9 +233,9 @@ func TestAccumulatorCycle_ManyValuesWithChannels(t *testing.T) {
     
     var sampleStandardDeviation = math.Sqrt(sumSqSampleErr / float64(sampleCount))
     
-    assert.Equal(t, sampleStandardDeviation, statistics.sampleStandardDeviation, "Unexpected standard deviation")
-    assert.Equal(t, sampleMean / sampleStandardDeviation, statistics.coefficientOfVariation, "Unexpected coefficient of variation")
-    assert.Equal(t, sampleMean, statistics.sampleMean, "Sample mean must equal mean when all values are included in the sample set")
-    assert.Equal(t, sampleSum, statistics.sampleSum, "Sample sum must equal sum when all values are included in the sample set")
-    assert.Equal(t, sampleCount, statistics.sampleCount, "Sample count must count when all values are included in the sample set")
+    assert.Equal(t, sampleStandardDeviation, statistics.SampleStandardDeviation, "Unexpected standard deviation")
+    assert.Equal(t, sampleMean / sampleStandardDeviation, statistics.CoefficientOfVariation, "Unexpected coefficient of variation")
+    assert.Equal(t, sampleMean, statistics.SampleMean, "Sample mean must equal mean when all values are included in the sample set")
+    assert.Equal(t, sampleSum, statistics.SampleSum, "Sample sum must equal sum when all values are included in the sample set")
+    assert.Equal(t, sampleCount, statistics.SampleCount, "Sample count must count when all values are included in the sample set")
 }

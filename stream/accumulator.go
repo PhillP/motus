@@ -60,14 +60,14 @@ func (accumulator *Accumulator) Finalise() IntervalStatistics {
     if accumulator.sampleCount > 0 {
         // calculate sample mean
         for _,v := range accumulator.sampleValues {
-            sampleSum += v.value    
+            sampleSum += v.Value    
         }
         sampleMean = sampleSum / float64(accumulator.sampleCount) 
     }
     
     var sumSquareError float64
     for _,v := range accumulator.sampleValues {
-        sumSquareError += math.Pow(v.value - sampleMean, 2)    
+        sumSquareError += math.Pow(v.Value - sampleMean, 2)    
     }
     sampleStandardDeviation = math.Sqrt(sumSquareError / float64(accumulator.sampleCount))
     
@@ -76,25 +76,25 @@ func (accumulator *Accumulator) Finalise() IntervalStatistics {
     }
     
     return IntervalStatistics{
-        intervalStart: accumulator.intervalStart,
-        intervalEnd: accumulator.intervalEnd,
-        intervalType: accumulator.intervalType,
-        minimum: accumulator.minimum,
-        maximum: accumulator.maximum,
-        count: accumulator.count,
-        sum: accumulator.sum,
-        mean: mean,
-        sampleCount: accumulator.sampleCount,
-        sampleMean: sampleMean,
-        sampleStandardDeviation: sampleStandardDeviation,
-        sampleSum: sampleSum,
-        coefficientOfVariation: coefficientOfVariation}
+        IntervalStart: accumulator.intervalStart,
+        IntervalEnd: accumulator.intervalEnd,
+        IntervalType: accumulator.intervalType,
+        Minimum: accumulator.minimum,
+        Maximum: accumulator.maximum,
+        Count: accumulator.count,
+        Sum: accumulator.sum,
+        Mean: mean,
+        SampleCount: accumulator.sampleCount,
+        SampleMean: sampleMean,
+        SampleStandardDeviation: sampleStandardDeviation,
+        SampleSum: sampleSum,
+        CoefficientOfVariation: coefficientOfVariation}
 }
 
 // Include a new value within the accumulation
 func (accumulator *Accumulator) Include(ordinalValue OrdinalValue) {
     
-    value:=ordinalValue.value
+    value:=ordinalValue.Value
     
     if accumulator.finalised {
         panic("Accumulator cannot include any more values after finalisation")

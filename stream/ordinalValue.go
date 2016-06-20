@@ -4,17 +4,17 @@ import "time"
 
 // OrdinalValue represents a value with an ordinal position within a stream
 type OrdinalValue struct {
-    streamKey       string
-    ordinal         int64
-    value           float64
+    StreamKey       string
+    Ordinal         int64
+    Value           float64
 }
 
 // NewOrdinalValue creates a new ordinal value
 func NewOrdinalValue(streamKey string, ordinal int64, value float64) (OrdinalValue) {
     ordinalValue := OrdinalValue{ 
-        streamKey: streamKey,
-        ordinal: ordinal,
-        value: value}
+        StreamKey: streamKey,
+        Ordinal: ordinal,
+        Value: value}
         
     return ordinalValue
 }
