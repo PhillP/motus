@@ -4,6 +4,7 @@ import "math"
 
 // Accumulator used to calculate statistics for a period of time by processing provided values
 type Accumulator struct {
+    streamKey                   string
     intervalStart               int64
     intervalEnd                 int64
     intervalType                IntervalType
@@ -19,8 +20,9 @@ type Accumulator struct {
 }
 
 // NewAccumulator creates an accumulator
-func NewAccumulator(intervalStart int64, intervalEnd int64, intervalType IntervalType, targetSampleCount uint32) (*Accumulator) {
+func NewAccumulator(streamKey string, intervalStart int64, intervalEnd int64, intervalType IntervalType, targetSampleCount uint32) (*Accumulator) {
     accumulator := Accumulator{ 
+        streamKey: streamKey,
         intervalStart: intervalStart,
         intervalEnd: intervalEnd,
         intervalType: intervalType,
@@ -76,6 +78,7 @@ func (accumulator *Accumulator) Finalise() IntervalStatistics {
     }
     
     return IntervalStatistics{
+        StreamKey: accumulator.streamKey,
         IntervalStart: accumulator.intervalStart,
         IntervalEnd: accumulator.intervalEnd,
         IntervalType: accumulator.intervalType,

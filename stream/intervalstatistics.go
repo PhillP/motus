@@ -12,6 +12,7 @@ const (
 
 // IntervalStatistics is a set of statistics generated based on processed events within a period of time or over a range or ordinal positions 
 type IntervalStatistics struct {
+    StreamKey                   string
     IntervalStart               int64
     IntervalEnd                 int64
     IntervalType                IntervalType

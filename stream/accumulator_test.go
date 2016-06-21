@@ -8,7 +8,7 @@ import "math"
 func TestAccumulatorCycle_NoValue(t *testing.T) {
     var targetSampleCount = uint32(100) // the sample count is larger than the number of values provided within this test
     
-    var accumulator = NewAccumulator(0, math.MaxInt64, OrdinalInterval, targetSampleCount)
+    var accumulator = NewAccumulator("stream", 0, math.MaxInt64, OrdinalInterval, targetSampleCount)
     
     // this test covers a scenario in which no values are received within the interval
     // .. no values are provided to the accumulator ..
@@ -24,7 +24,7 @@ func TestAccumulatorCycle_NoValue(t *testing.T) {
 func TestAccumulatorCycle_SingleValue(t *testing.T) {
     var targetSampleCount = uint32(100) // the sample count is larger than the number of values provided within this test
     
-    var accumulator = NewAccumulator(0, math.MaxInt64, OrdinalInterval, targetSampleCount)
+    var accumulator = NewAccumulator("stream", 0, math.MaxInt64, OrdinalInterval, targetSampleCount)
     
     var value float64 = 50
     
@@ -50,7 +50,7 @@ func TestAccumulatorCycle_SingleValue(t *testing.T) {
 func TestAccumulatorCycle_SomeValues(t *testing.T) {
     var targetSampleCount = uint32(100) // the sample count is larger than the number of values provided within this test
     
-    var accumulator = NewAccumulator(0, math.MaxInt64, OrdinalInterval, targetSampleCount)
+    var accumulator = NewAccumulator("stream", 0, math.MaxInt64, OrdinalInterval, targetSampleCount)
     
     // this test covers a scenario in which only several values are received within the interval
     accumulator.Include(NewOrdinalValue("test",1,2))
@@ -80,7 +80,7 @@ func TestAccumulatorCycle_SomeValues(t *testing.T) {
 func TestAccumulatorCycle_ManyValues(t *testing.T) {
     var targetSampleCount = uint32(100) // the sample count is larger than the number of values provided within this test
     
-    var accumulator = NewAccumulator(0, math.MaxInt64, OrdinalInterval, targetSampleCount)
+    var accumulator = NewAccumulator("stream", 0, math.MaxInt64, OrdinalInterval, targetSampleCount)
     
     var overallSum = 0.0
     var overallCount = 0
@@ -158,7 +158,7 @@ func TestAccumulatorCycle_ManyValues(t *testing.T) {
 func TestAccumulatorCycle_ManyValuesWithChannels(t *testing.T) {
     var targetSampleCount = uint32(100) // the sample count is larger than the number of values provided within this test
     
-    var accumulator = NewAccumulator(0, math.MaxInt64, OrdinalInterval, targetSampleCount)
+    var accumulator = NewAccumulator("stream", 0, math.MaxInt64, OrdinalInterval, targetSampleCount)
     
     input := make(chan OrdinalValue)
     output := make(chan IntervalStatistics)

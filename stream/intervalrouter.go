@@ -63,7 +63,7 @@ func (intervalRouter *IntervalRouter) Accumulate(ordinalValue OrdinalValue, outp
         var intervalStart = interval * int64(intervalRouter.intervalSize)
         
         if channel == nil {
-            accumulator := NewAccumulator(intervalStart, intervalStart + intervalRouter.intervalSize - 1, intervalRouter.intervalType, intervalRouter.targetSampleCount)
+            accumulator := NewAccumulator(intervalRouter.key, intervalStart, intervalStart + intervalRouter.intervalSize - 1, intervalRouter.intervalType, intervalRouter.targetSampleCount)
             
             channel = make(chan OrdinalValue)
             doneChannel := make(chan bool)
