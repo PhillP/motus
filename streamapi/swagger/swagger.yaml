@@ -2,6 +2,129 @@ basePath: api
 consumes:
 - application/json
 definitions:
+  GoaIntervalstatisticsresult:
+    description: A set of statistics based on the values of a stream for an interval
+    example:
+      coefficientOfVariation: 0.25302508
+      count: 0.3998273
+      intervalEnd: 4.911934e+18
+      intervalStart: 6.7128346e+18
+      maximum: 0.818816
+      mean: 0.06198637
+      minimum: 0.8829448
+      sampleCount: 0.23560378
+      sampleMean: 0.6521683
+      sampleStandardDeviation: 0.279329
+      sampleSum: 0.9756195
+      streamKey: Eius totam dolorum similique et enim.
+      sum: 0.18888621
+    properties:
+      coefficientOfVariation:
+        description: a measure of the variability of values within the sample set
+        example: 0.54502374
+        format: double
+        type: number
+      count:
+        description: the count of values occuring within the interval
+        example: 0.7511348
+        format: double
+        type: number
+      intervalEnd:
+        description: the ordinal position at the end of the interval
+        example: 1.3243946e+18
+        format: int64
+        type: integer
+      intervalStart:
+        description: the ordinal position at the start of the interval
+        example: 2.976584e+18
+        format: int64
+        type: integer
+      maximum:
+        description: the maximum value occuring within the interval
+        example: 0.77311695
+        format: double
+        type: number
+      mean:
+        description: the mean of the interval values
+        example: 0.93194115
+        format: double
+        type: number
+      minimum:
+        description: the minimum value occuring within the interval
+        example: 0.44501212
+        format: double
+        type: number
+      sampleCount:
+        description: the count of sample values
+        example: 0.11258541
+        format: double
+        type: number
+      sampleMean:
+        description: the mean of the sample values
+        example: 0.60393417
+        format: double
+        type: number
+      sampleStandardDeviation:
+        description: the standard deviation of the values within the sample set
+        example: 0.5739642
+        format: double
+        type: number
+      sampleSum:
+        description: the sum of sample values
+        example: 0.3204609
+        format: double
+        type: number
+      streamKey:
+        description: identifies the stream for which the interval statistics have
+          been derived
+        example: Fugiat repudiandae iste laboriosam.
+        type: string
+      sum:
+        description: the sum of values occuring within the interval
+        example: 0.5911047
+        format: double
+        type: number
+    title: 'Mediatype identifier: vnd.application/goa.intervalstatisticsresult'
+    type: object
+  GoaStatisticsresults:
+    description: The results of a statistics query
+    example:
+      intervalStatisticsList:
+      - coefficientOfVariation: 0.68249935
+        count: 0.65795875
+        intervalEnd: 7.5934615e+18
+        intervalStart: 4.4748757e+18
+        maximum: 0.5723828
+        mean: 0.6181328
+        minimum: 0.11752256
+        sampleCount: 0.075238906
+        sampleMean: 0.8264295
+        sampleStandardDeviation: 0.97561985
+        sampleSum: 0.07476376
+        streamKey: Cum quisquam aperiam aliquid repellat.
+        sum: 0.9666042
+    properties:
+      intervalStatisticsList:
+        description: A list of matching interval statistics
+        example:
+        - coefficientOfVariation: 0.47918373
+          count: 0.6382756
+          intervalEnd: 7.949435e+17
+          intervalStart: 4.3210546e+18
+          maximum: 0.7221887
+          mean: 0.70738256
+          minimum: 0.14060971
+          sampleCount: 0.32292825
+          sampleMean: 0.44182158
+          sampleStandardDeviation: 0.2625351
+          sampleSum: 0.0719721
+          streamKey: Placeat aut et aut veritatis et.
+          sum: 0.6376553
+        items:
+          $ref: '#/definitions/GoaIntervalstatisticsresult'
+        type: array
+    title: 'Mediatype identifier: vnd.application/goa.statisticsresults'
+    type: object
   PushOrdinalValuesPayload:
     properties:
       ordinal:
@@ -34,6 +157,11 @@ definitions:
       stream:
         description: Identifies the stream that the definition relates to
         type: string
+      tags:
+        description: A set of tag values to be assigned to the stream
+        items:
+          type: string
+        type: array
       targetSampleSize:
         description: The value at the ordinal position
         format: int64
@@ -44,6 +172,87 @@ definitions:
     - maxIntervalLag
     - targetSampleSize
     title: RegisterOrdinalValuesPayload
+    type: object
+  StatisticsOrdinalValuesPayload:
+    properties:
+      maxDateTime:
+        description: Specifies a maximum date time used to restrict the interval statistics
+          returned.  Only statistics for intervals that are for a time range up until
+          this date time value will be returned.
+        format: date-time
+        type: string
+      maxOrdinal:
+        description: Specifies a maximum ordinal value used to restrict the interval
+          statistics returned.  Only statistics for intervals that end on or before
+          this ordinal value will be returned.
+        format: int64
+        type: integer
+      mergeIntervals:
+        description: If true, results across multiple intervals will be merged together
+          to produce a summary result.
+        type: boolean
+      mergeStreams:
+        description: If true, results from multiple streams will be merged together
+          to produce a summary result.
+        type: boolean
+      minDateTime:
+        description: Specifies a minimum date time used to restrict the interval statistics
+          returned.  Only statistics for intervals that are for a time range on or
+          after this date time value will be returned.
+        format: date-time
+        type: string
+      minOrdinal:
+        description: Specifies a minimum ordinal value used to restrict the interval
+          statistics returned.  Only statistics for intervals that begin on or after
+          this ordinal value will be returned.
+        format: int64
+        type: integer
+      streamMatchCriteria:
+        $ref: '#/definitions/StreamMatchCriteria'
+    title: StatisticsOrdinalValuesPayload
+    type: object
+  StreamMatchCriteria:
+    properties:
+      excludeWithAnyTags:
+        description: An optional array of tags.  Streams tagged with any of these
+          tags will be excluded
+        items:
+          type: string
+        type: array
+      includeWithAllTags:
+        description: An optional array of tags. Streams tagged with all of these tags
+          will be included
+        items:
+          type: string
+        type: array
+      streamKeys:
+        description: An optional array of streamKeys used to select streams
+        items:
+          type: string
+        type: array
+    title: StreamMatchCriteria
+    type: object
+  TagOrdinalValuesPayload:
+    properties:
+      clearAll:
+        description: If true, previously assigned tags will be cleared
+        type: boolean
+      stream:
+        description: Identifies the stream that the definition relates to
+        type: string
+      tagsToAssign:
+        description: An array of tags to be assigned
+        items:
+          type: string
+        type: array
+      tagsToUnassign:
+        description: An array of tags to be unassigned
+        items:
+          type: string
+        type: array
+    required:
+    - stream
+    title: TagOrdinalValuesPayload
     type: object
 host: localhost:8080
 info:
@@ -109,6 +318,40 @@ paths:
       schemes:
       - http
       summary: register
+  /api/statistics:
+    post:
+      description: Gets statistics matching search criteria
+      operationId: OrdinalValues#statistics
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/StatisticsOrdinalValuesPayload'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/GoaStatisticsresults'
+      schemes:
+      - http
+      summary: statistics
+  /api/tag:
+    post:
+      description: Changes the tag assignments for a stream
+      operationId: OrdinalValues#tag
+      parameters:
+      - in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/TagOrdinalValuesPayload'
+      responses:
+        "200":
+          description: OK
+      schemes:
+      - http
+      summary: tag
 produces:
 - application/json
 schemes:

@@ -34,6 +34,8 @@ type OrdinalValuesController interface {
 	Add(*AddOrdinalValuesContext) error
 	Push(*PushOrdinalValuesContext) error
 	Register(*RegisterOrdinalValuesContext) error
+	Statistics(*StatisticsOrdinalValuesContext) error
+	Tag(*TagOrdinalValuesContext) error
 }
 
 // MountOrdinalValuesController "mounts" a OrdinalValues resource controller on the given service.
@@ -80,6 +82,36 @@ func MountOrdinalValuesController(service *goa.Service, ctrl OrdinalValuesContro
 	}
 	service.Mux.Handle("POST", "/api/register", ctrl.MuxHandler("Register", h, unmarshalRegisterOrdinalValuesPayload))
 	service.LogInfo("mount", "ctrl", "OrdinalValues", "action", "Register", "route", "POST /api/register")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		rctx, err := NewStatisticsOrdinalValuesContext(ctx, service)
+		if err != nil {
+			return err
+		}
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*StatisticsOrdinalValuesPayload)
+		} else {
+			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
+		}
+		return ctrl.Statistics(rctx)
+	}
+	service.Mux.Handle("POST", "/api/statistics", ctrl.MuxHandler("Statistics", h, unmarshalStatisticsOrdinalValuesPayload))
+	service.LogInfo("mount", "ctrl", "OrdinalValues", "action", "Statistics", "route", "POST /api/statistics")
+
+	h = func(ctx context.Context, rw http.ResponseWriter, req *http.Request) error {
+		rctx, err := NewTagOrdinalValuesContext(ctx, service)
+		if err != nil {
+			return err
+		}
+		if rawPayload := goa.ContextRequest(ctx).Payload; rawPayload != nil {
+			rctx.Payload = rawPayload.(*TagOrdinalValuesPayload)
+		} else {
+			return goa.ErrInvalidEncoding(goa.MissingPayloadError())
+		}
+		return ctrl.Tag(rctx)
+	}
+	service.Mux.Handle("POST", "/api/tag", ctrl.MuxHandler("Tag", h, unmarshalTagOrdinalValuesPayload))
+	service.LogInfo("mount", "ctrl", "OrdinalValues", "action", "Tag", "route", "POST /api/tag")
 }
 
 // unmarshalPushOrdinalValuesPayload unmarshals the request body into the context request data Payload field.
@@ -98,6 +130,29 @@ func unmarshalPushOrdinalValuesPayload(ctx context.Context, service *goa.Service
 // unmarshalRegisterOrdinalValuesPayload unmarshals the request body into the context request data Payload field.
 func unmarshalRegisterOrdinalValuesPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
 	payload := &registerOrdinalValuesPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	if err := payload.Validate(); err != nil {
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalStatisticsOrdinalValuesPayload unmarshals the request body into the context request data Payload field.
+func unmarshalStatisticsOrdinalValuesPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &statisticsOrdinalValuesPayload{}
+	if err := service.DecodeRequest(req, payload); err != nil {
+		return err
+	}
+	goa.ContextRequest(ctx).Payload = payload.Publicize()
+	return nil
+}
+
+// unmarshalTagOrdinalValuesPayload unmarshals the request body into the context request data Payload field.
+func unmarshalTagOrdinalValuesPayload(ctx context.Context, service *goa.Service, req *http.Request) error {
+	payload := &tagOrdinalValuesPayload{}
 	if err := service.DecodeRequest(req, payload); err != nil {
 		return err
 	}

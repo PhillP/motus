@@ -144,3 +144,92 @@ func RegisterOrdinalValuesOKCtx(t *testing.T, ctx context.Context, ctrl app.Ordi
 	}
 
 }
+
+// StatisticsOrdinalValuesOK test setup
+func StatisticsOrdinalValuesOK(t *testing.T, ctrl app.OrdinalValuesController, payload *app.StatisticsOrdinalValuesPayload) *app.GoaStatisticsresults {
+	return StatisticsOrdinalValuesOKCtx(t, context.Background(), ctrl, payload)
+}
+
+// StatisticsOrdinalValuesOKCtx test setup
+func StatisticsOrdinalValuesOKCtx(t *testing.T, ctx context.Context, ctrl app.OrdinalValuesController, payload *app.StatisticsOrdinalValuesPayload) *app.GoaStatisticsresults {
+	var logBuf bytes.Buffer
+	var resp interface{}
+	respSetter := func(r interface{}) { resp = r }
+	service := goatest.Service(&logBuf, respSetter)
+	rw := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", fmt.Sprintf("/api/statistics"), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "OrdinalValuesTest"), rw, req, prms)
+	statisticsCtx, err := app.NewStatisticsOrdinalValuesContext(goaCtx, service)
+	if err != nil {
+		panic("invalid test data " + err.Error()) // bug
+	}
+	statisticsCtx.Payload = payload
+
+	err = ctrl.Statistics(statisticsCtx)
+	if err != nil {
+		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
+	}
+
+	a, ok := resp.(*app.GoaStatisticsresults)
+	if !ok {
+		t.Errorf("invalid response media: got %+v, expected instance of app.GoaStatisticsresults", resp)
+	}
+
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
+	}
+	return a
+
+}
+
+// TagOrdinalValuesOK test setup
+func TagOrdinalValuesOK(t *testing.T, ctrl app.OrdinalValuesController, payload *app.TagOrdinalValuesPayload) {
+	TagOrdinalValuesOKCtx(t, context.Background(), ctrl, payload)
+}
+
+// TagOrdinalValuesOKCtx test setup
+func TagOrdinalValuesOKCtx(t *testing.T, ctx context.Context, ctrl app.OrdinalValuesController, payload *app.TagOrdinalValuesPayload) {
+	err := payload.Validate()
+	if err != nil {
+		e, ok := err.(*goa.Error)
+		if !ok {
+			panic(err) //bug
+		}
+		if e.Status != 200 {
+			t.Errorf("unexpected payload validation error: %+v", e)
+		}
+		return
+	}
+	var logBuf bytes.Buffer
+	var resp interface{}
+	respSetter := func(r interface{}) { resp = r }
+	service := goatest.Service(&logBuf, respSetter)
+	rw := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", fmt.Sprintf("/api/tag"), nil)
+	if err != nil {
+		panic("invalid test " + err.Error()) // bug
+	}
+	prms := url.Values{}
+
+	goaCtx := goa.NewContext(goa.WithAction(ctx, "OrdinalValuesTest"), rw, req, prms)
+	tagCtx, err := app.NewTagOrdinalValuesContext(goaCtx, service)
+	if err != nil {
+		panic("invalid test data " + err.Error()) // bug
+	}
+	tagCtx.Payload = payload
+
+	err = ctrl.Tag(tagCtx)
+	if err != nil {
+		t.Fatalf("controller returned %s, logs:\n%s", err, logBuf.String())
+	}
+
+	if rw.Code != 200 {
+		t.Errorf("invalid response status code: got %+v, expected 200", rw.Code)
+	}
+
+}

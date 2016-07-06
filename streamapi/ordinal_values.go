@@ -102,3 +102,15 @@ func (c *OrdinalValuesController) Register(ctx *app.RegisterOrdinalValuesContext
 	
 	return nil
 }
+
+// Tag performs the action of applying tags to a stream
+func (c *OrdinalValuesController) Tag(ctx *app.TagOrdinalValuesContext) error {
+	return nil
+}
+
+// Statistics performs the action of calculating and returning statistics matching search criteria
+func (c *OrdinalValuesController) Statistics(ctx *app.StatisticsOrdinalValuesContext) error {
+	return nil
+}
+
+

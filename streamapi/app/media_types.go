@@ -10,3 +10,43 @@
 //************************************************************************//
 
 package app
+
+// GoaIntervalstatisticsresult media type.
+//
+// Identifier: vnd.application/goa.intervalstatisticsresult
+type GoaIntervalstatisticsresult struct {
+	// a measure of the variability of values within the sample set
+	CoefficientOfVariation *float64 `json:"coefficientOfVariation,omitempty" xml:"coefficientOfVariation,omitempty"`
+	// the count of values occuring within the interval
+	Count *float64 `json:"count,omitempty" xml:"count,omitempty"`
+	// the ordinal position at the end of the interval
+	IntervalEnd *int `json:"intervalEnd,omitempty" xml:"intervalEnd,omitempty"`
+	// the ordinal position at the start of the interval
+	IntervalStart *int `json:"intervalStart,omitempty" xml:"intervalStart,omitempty"`
+	// the maximum value occuring within the interval
+	Maximum *float64 `json:"maximum,omitempty" xml:"maximum,omitempty"`
+	// the mean of the interval values
+	Mean *float64 `json:"mean,omitempty" xml:"mean,omitempty"`
+	// the minimum value occuring within the interval
+	Minimum *float64 `json:"minimum,omitempty" xml:"minimum,omitempty"`
+	// the count of sample values
+	SampleCount *float64 `json:"sampleCount,omitempty" xml:"sampleCount,omitempty"`
+	// the mean of the sample values
+	SampleMean *float64 `json:"sampleMean,omitempty" xml:"sampleMean,omitempty"`
+	// the standard deviation of the values within the sample set
+	SampleStandardDeviation *float64 `json:"sampleStandardDeviation,omitempty" xml:"sampleStandardDeviation,omitempty"`
+	// the sum of sample values
+	SampleSum *float64 `json:"sampleSum,omitempty" xml:"sampleSum,omitempty"`
+	// identifies the stream for which the interval statistics have been derived
+	StreamKey *string `json:"streamKey,omitempty" xml:"streamKey,omitempty"`
+	// the sum of values occuring within the interval
+	Sum *float64 `json:"sum,omitempty" xml:"sum,omitempty"`
+}
+
+// GoaStatisticsresults media type.
+//
+// Identifier: vnd.application/goa.statisticsresults
+type GoaStatisticsresults struct {
+	// A list of matching interval statistics
+	IntervalStatisticsList []*GoaIntervalstatisticsresult `json:"intervalStatisticsList,omitempty" xml:"intervalStatisticsList,omitempty"`
+}
