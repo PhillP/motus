@@ -4,7 +4,7 @@ import "sync"
 
 // TagRepository manages sets of tags by key 
 type TagRepository struct {
-    mu sync.RWMutex
+    mu *sync.RWMutex
     tagsByKeyStore              map[string][]string
     keysByTagStore              map[string]map[string]bool
 }
@@ -12,7 +12,7 @@ type TagRepository struct {
 // NewTagRepository creates an empty tag repository
 func NewTagRepository() TagRepository {
     return TagRepository {
-        mu: sync.RWMutex {},
+        mu: &sync.RWMutex {},
         tagsByKeyStore: make(map[string][]string),
         keysByTagStore: make(map[string]map[string]bool)}
 }
@@ -39,18 +39,21 @@ func (tagRepository *TagRepository) ApplyTags(key string, tags []string, removeE
     tagRepository.mu.Lock()
     
     // get the current set of tags for a key
-    var tagsForKey = tagRepository.tagsByKeyStore[key]
+    tagsForKey, tagsExist := tagRepository.tagsByKeyStore[key]
     
     // or make a new set if required
-    if tagsForKey == nil || removeExisting {
-        tagsForKey = make([]string, 100) 
+    if !tagsExist || removeExisting {
+        tagsForKey = make([]string, 0, 10) 
     }
     
     // iterate through the tags to be applied
     for _,tag := range tags {
         if !isStringInSlice(tagsForKey, tag) {
             tagsForKey = append(tagsForKey, tag)
-        } else {
+            
+            if _, ok := tagRepository.keysByTagStore[tag]; !ok {
+                tagRepository.keysByTagStore[tag] = make(map[string]bool)
+            } 
             tagRepository.keysByTagStore[tag][key] = true
         }
     }
@@ -67,7 +70,7 @@ func (tagRepository *TagRepository) RemoveTags(key string, tags []string) {
     var tagsForKey = tagRepository.tagsByKeyStore[key]
     
     if tagsForKey != nil {
-        var newTags = make([]string, 10)
+        var newTags = make([]string, 0, 10)
         
         for _,v := range tags {
             if !isStringInSlice(tags, v){
@@ -118,7 +121,7 @@ func (tagRepository *TagRepository) getMatchingKeysInternal(withTags []string, e
     var keysWithTagCount = make(map[string]int, 100)
     var excludedKeys = make(map[string]bool, 100)
     var expectedCount = len(withTags)
-    var matchedKeys = make([]string,100)
+    var matchedKeys = make([]string, 0, 100)
     
     if excludingTags != nil {
         var keysToExclude = tagRepository.getMatchingKeysInternal(excludingTags, nil)
@@ -167,5 +170,9 @@ func (tagRepository *TagRepository) GetTagsForKey(key string) []string {
     defer tagRepository.mu.RUnlock()
     tagRepository.mu.RLock()
     
-    return tagRepository.tagsByKeyStore[key]
+    if tags,ok := tagRepository.tagsByKeyStore[key]; ok {
+        return tags
+    }
+    
+    return nil
 }
