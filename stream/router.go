@@ -39,3 +39,11 @@ func (router *Router) Route(input chan OrdinalValue, unassigned chan OrdinalValu
 func (router *Router) Register(streamKey string, c chan OrdinalValue) {
     router.channelMap[streamKey] = c
 }
+
+//StopAndUnregister removes a stream key from the router and closes the stream channel
+func (router *Router) StopAndUnregister(streamKey string) {
+    if channel,ok := router.channelMap[streamKey]; ok {
+        delete(router.channelMap, streamKey)
+        close(channel)
+    }
+}

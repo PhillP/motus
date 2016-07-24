@@ -10,7 +10,7 @@ func TestProcessAndForward(t *testing.T) {
     
     var cache = NewIntervalStatisticsCache("MyStream", uint32(cacheSize))
     
-    go ProcessAndForward(cache, input, output)
+    go cache.ProcessAndForward(input, output)
     
     var itemsToAdd = cacheSize * 2
     
@@ -35,7 +35,7 @@ func TestProcessAndForward(t *testing.T) {
     var expectedOrdinal = cacheSize
     // get items from cache.. as many as possible
     readCount = 0
-    for _,s := range GetFromOrdinal(cache, 0) {
+    for _,s := range cache.GetFromOrdinal(0) {
         assert.Equal(t, int64(expectedOrdinal), s.IntervalStart)
         expectedOrdinal++
         readCount++

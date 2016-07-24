@@ -22,16 +22,16 @@ func NewIntervalStatisticsCache(streamKey string, size uint32) *IntervalStatisti
 }
 
 // ProcessAndForward stores values from an input channel and then forwards values to an output channel. Only the most recent set of results are stored
-func ProcessAndForward(intervalStatisticsCache *IntervalStatisticsCache, input chan IntervalStatistics, output chan IntervalStatistics) {
+func (intervalStatisticsCache *IntervalStatisticsCache) ProcessAndForward(input chan IntervalStatistics, output chan IntervalStatistics) {
     for v := range input {
-       addToCache(intervalStatisticsCache, v)
+       intervalStatisticsCache.addToCache(v)
         
         // forward
         output <- v
     }
 }
 
-func addToCache(intervalStatisticsCache *IntervalStatisticsCache, statistics IntervalStatistics){
+func (intervalStatisticsCache *IntervalStatisticsCache) addToCache(statistics IntervalStatistics){
     defer intervalStatisticsCache.cacheMutex.Unlock()
     intervalStatisticsCache.cacheMutex.Lock()
     
@@ -46,7 +46,7 @@ func addToCache(intervalStatisticsCache *IntervalStatisticsCache, statistics Int
 }
 
 // GetLast returns the most recent statistics from the cache up to the specified maxCount
-func GetLast(intervalStatisticsCache *IntervalStatisticsCache, maxCount int) []IntervalStatistics {
+func (intervalStatisticsCache *IntervalStatisticsCache) GetLast(maxCount int) []IntervalStatistics {
     var cache = intervalStatisticsCache.cache
     
     if (len(cache) > maxCount) {
@@ -58,7 +58,7 @@ func GetLast(intervalStatisticsCache *IntervalStatisticsCache, maxCount int) []I
 }
 
 // GetFromOrdinal returns the cached statistics that have an ordinal value equal or greater than the value provided
-func GetFromOrdinal(intervalStatisticsCache *IntervalStatisticsCache, fromOrdinal int64) []IntervalStatistics {
+func (intervalStatisticsCache *IntervalStatisticsCache) GetFromOrdinal(fromOrdinal int64) []IntervalStatistics {
     var cache = intervalStatisticsCache.cache
     var selected = make([]IntervalStatistics,0)
     
@@ -72,7 +72,7 @@ func GetFromOrdinal(intervalStatisticsCache *IntervalStatisticsCache, fromOrdina
 }
 
 // GetOrdinalRange returns the cached statistics that exist between a range of ordinal values
-func GetOrdinalRange(intervalStatisticsCache *IntervalStatisticsCache, fromOrdinal int64, untilOrdinal int64) []IntervalStatistics {
+func (intervalStatisticsCache *IntervalStatisticsCache) GetOrdinalRange(fromOrdinal int64, untilOrdinal int64) []IntervalStatistics {
     var cache = intervalStatisticsCache.cache
     var selected = make([]IntervalStatistics,100)
     
@@ -83,4 +83,17 @@ func GetOrdinalRange(intervalStatisticsCache *IntervalStatisticsCache, fromOrdin
     }
     
     return selected
+}
+
+// EmitIntervalStatistics outputs matching interval statistics to a provided channel
+func (intervalStatisticsCache *IntervalStatisticsCache) EmitIntervalStatistics(fromOrdinal int64, untilOrdinal int64, output chan IntervalStatistics) error {
+    var cache = intervalStatisticsCache.cache
+    
+    for _,v := range cache {
+       if (v.IntervalStart >= fromOrdinal && v.IntervalStart < untilOrdinal) {
+           output <- v
+       }
+    }
+    
+    return nil
 }
